@@ -1,6 +1,8 @@
-from transformers import pipeline
+from src.schemas.response import PredictionResult
 
+from transformers import pipeline
 import torch
+
 
 # set the number of threads
 torch.set_num_threads(1)
@@ -27,4 +29,11 @@ class EmotionClassifier:
             dict: The result of the prediction as dictionary.
         """
         result = cls.model(text)
-        return result
+
+        try:
+            # Trying to convert the first element of the list to dict
+            response = dict(result[0])
+            return response
+        
+        except TypeError as e:
+            return PredictionResult()

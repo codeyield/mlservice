@@ -1,12 +1,15 @@
 from fastapi import APIRouter, BackgroundTasks
+
 from src.schemas.requests import TextRequest
+from src.schemas.response import PredictionResult
+
 from src.services.model import EmotionClassifier
 from src.services.utils import print_logger_info
 
 router = APIRouter()
 
-
-@router.post("/predict/")
+# @router.post("/predict/")
+@router.post("/predict/", response_model=PredictionResult, name="response")
 async def predict_emotion(text_request: TextRequest, background_tasks: BackgroundTasks):
     """
     Predicting emotions from the text.
@@ -18,9 +21,11 @@ async def predict_emotion(text_request: TextRequest, background_tasks: Backgroun
         dict: The result of the prediction as dictionary.
     """
     result = EmotionClassifier.predict_emotion(text_request.text)
+    
     background_tasks.add_task(
         print_logger_info,
         text_request.text,
         result,
     )
+    
     return result
